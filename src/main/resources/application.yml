@@ -1,0 +1,26 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+
+aws:
+  s3:
+    bucket: ${AWS_BUCKET_NAME:}
+  region: ${AWS_REGION:}
+  accessKeyId: ${AWS_ACCESS_KEY_ID:}
+  secretKey: ${AWS_SECRET_ACCESS_KEY:}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+  seed:
+    admin:
+      password: ${DEMO_ADMIN_PASSWORD}
+    user:
+      password: ${DEMO_USER_PASSWORD}
