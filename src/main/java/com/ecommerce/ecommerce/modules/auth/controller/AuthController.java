@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static com.ecommerce.ecommerce.common.utils.AppPaths.*;
 
 @RestController
-@RequestMapping(API + VERSION + AUTH)
+@RequestMapping(API + VERSION + "/auth")
 @RequiredArgsConstructor
 public class AuthController {
 

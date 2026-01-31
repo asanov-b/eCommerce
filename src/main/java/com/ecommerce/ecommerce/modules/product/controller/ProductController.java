@@ -18,7 +18,7 @@ import static com.ecommerce.ecommerce.common.utils.AppPaths.*;
 
 
 @RestController
-@RequestMapping(API +VERSION+"/product")
+@RequestMapping(API +VERSION+"/products")
 @RequiredArgsConstructor
 public class ProductController {
 

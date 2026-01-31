@@ -15,7 +15,7 @@ import static com.ecommerce.ecommerce.common.utils.AppPaths.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(API + VERSION + "/file")
+@RequestMapping(API + VERSION + "/files")
 public class FileController {
 
     private final FileService fileService;
