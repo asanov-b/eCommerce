@@ -5,6 +5,7 @@ import com.ecommerce.ecommerce.modules.order.dto.request.UpdateOrderStatusDTO;
 import com.ecommerce.ecommerce.modules.order.dto.response.OrderResDTO;
 import com.ecommerce.ecommerce.modules.order.entity.enums.OrderStatus;
 import com.ecommerce.ecommerce.modules.order.service.OrderService;
+import com.ecommerce.ecommerce.modules.user.entity.Role;
 import com.ecommerce.ecommerce.modules.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public ResponseEntity<OrderResDTO> getOrder(@PathVariable UUID id, @AuthenticationPrincipal User principal) {
-        OrderResDTO orderResDTO = orderService.getOrder(id, principal.getId());
+        OrderResDTO orderResDTO = orderService.getOrder(id, principal.getId(), principal.getRoles());
         return ResponseEntity.ok(orderResDTO);
     }
 

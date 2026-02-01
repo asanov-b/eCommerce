@@ -1,8 +1,8 @@
 package com.ecommerce.ecommerce.modules.product.service;
 
 import com.ecommerce.ecommerce.common.exception.CustomException;
-import com.ecommerce.ecommerce.modules.product.dto.ProductResDTO;
 import com.ecommerce.ecommerce.modules.product.dto.ProductDTO;
+import com.ecommerce.ecommerce.modules.product.dto.ProductResDTO;
 import com.ecommerce.ecommerce.modules.product.dto.ProductSearchDTO;
 import com.ecommerce.ecommerce.modules.product.entity.Attachment;
 import com.ecommerce.ecommerce.modules.product.entity.Category;
@@ -49,10 +49,8 @@ public class ProductsServiceImpl implements ProductsService {
     @Override
     public ProductResDTO getProduct(UUID id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Product not found. id={}", id);
-                    return new CustomException(HttpStatus.NOT_FOUND, "Product not found");
-                });
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Product not found. id= " + id));
+
         return productMapper.toProductResDTO(product);
     }
 
@@ -70,10 +68,7 @@ public class ProductsServiceImpl implements ProductsService {
     @Override
     public ProductResDTO update(UUID id, ProductDTO productDTO) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("Product not found. id={}", id);
-                    return new CustomException(HttpStatus.NOT_FOUND, "Product not found");
-                });
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Product not found. id= " + id));
 
         applyDto(product, productDTO);
         log.info("Updated product successful id={}", product.getId());
@@ -89,8 +84,7 @@ public class ProductsServiceImpl implements ProductsService {
             List<UUID> ids = dto.attachmentId();
             List<Attachment> attachments = attachmentRepository.findAllById(ids);
             if (attachments.size() != ids.size()) {
-                log.warn("Some attachments not found. attachmentId={}", dto.attachmentId());
-                throw new CustomException(HttpStatus.NOT_FOUND, "Attachment not found");
+                throw new CustomException(HttpStatus.NOT_FOUND, "Some attachments not found. attachmentId= " + dto.attachmentId());
             }
             attachments.forEach(a -> a.setProduct(product));
             product.setAttachments(attachments);
@@ -98,20 +92,16 @@ public class ProductsServiceImpl implements ProductsService {
 
         if (dto.categoryId() != null) {
             Category category = categoryRepository.findById(dto.categoryId())
-                    .orElseThrow(() -> {
-                        log.warn("Category not found. categoryId={}", dto.categoryId());
-                        return new CustomException(HttpStatus.NOT_FOUND, "Category not found");
-                    });
+                    .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Category not found. categoryId=" + dto.categoryId()));
             product.setCategory(category);
         }
     }
 
     @Override
     public void delete(UUID id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> {
-            log.warn("Product not found. id {}", id);
-            return new CustomException(HttpStatus.NOT_FOUND, "Product not found");
-        });
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Product not found. id= " + id));
+
         productRepository.delete(product);
         log.info("Deleted product successful id={}", product.getId());
     }

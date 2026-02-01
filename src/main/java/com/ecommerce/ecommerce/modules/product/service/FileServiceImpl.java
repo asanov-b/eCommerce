@@ -32,8 +32,7 @@ public class FileServiceImpl implements FileService {
     @Override
     public List<UUID> save(List<MultipartFile> multipartFile) {
         if (multipartFile == null || multipartFile.isEmpty()) {
-            log.warn("Multipart file is empty");
-            throw new CustomException(HttpStatus.BAD_REQUEST, "No file provided");
+            throw new CustomException(HttpStatus.BAD_REQUEST, "Multipart file is empty");
         }
 
         List<Attachment> attachments = new ArrayList<>();

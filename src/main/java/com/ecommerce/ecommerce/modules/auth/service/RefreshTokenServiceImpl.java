@@ -56,7 +56,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         RefreshToken existing = refreshTokenRepository.findByToken(oldRefreshToken)
                 .orElseThrow(() -> {
-                    log.warn("Invalid refresh token={}", oldRefreshToken);
+                    log.warn("Refresh not found. token={}", oldRefreshToken);
                     return new CustomException(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
                 });
 
@@ -82,6 +82,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 .revoked(false)
                 .build();
         refreshTokenRepository.save(newRefreshToken);
+        log.info("Refresh token successfully rotated. userId={}", existing.getUser().getId());
 
         String accessToken = jwtTokenService.generateToken(existing.getUser());
         return new TokenDTO(accessToken, refreshToken);
@@ -90,10 +91,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     public void revoke(String refreshToken) {
         RefreshToken refreshToken1 = refreshTokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> {
-                    log.warn("Refresh token not found. refreshToken={}", refreshToken);
-                    return new CustomException(HttpStatus.NOT_FOUND, "Refresh token not found");
-                });
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Refresh token not found"));
 
         refreshToken1.setRevoked(true);
         refreshTokenRepository.save(refreshToken1);

@@ -29,7 +29,4 @@ public class Product extends BaseEntity {
 
     @JoinColumn(nullable = false)
     private Integer leftover;
-
-    @Version
-    private Integer version;
 }

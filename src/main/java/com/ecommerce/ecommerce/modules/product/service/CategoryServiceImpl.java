@@ -31,17 +31,14 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryResDTO getCategory(UUID id) {
-        Category category = categoryRepository.findById(id).orElseThrow(() -> {
-            log.warn("Category with id {} not found", id);
-            return new CustomException(HttpStatus.NOT_FOUND, "Category not found");
-        });
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Category not found. id= " + id));
         return new CategoryResDTO(category.getId(), category.getName());
     }
 
     @Override
     public CategoryResDTO save(CategoryDTO category) {
         if (categoryRepository.existsCategoryByName(category.name())) {
-            log.warn("Category with name {} already exists", category.name());
             throw new CustomException(HttpStatus.CONFLICT, "Category with name already exists");
         }
         log.info("Saved category={}", category.name());
@@ -52,8 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void update(UUID id, CategoryDTO categoryDTO) {
         Category category = categoryRepository.findById(id).orElseThrow(() -> {
-            log.warn("Category with id {} not found", id);
-            return new CustomException(HttpStatus.NOT_FOUND, "Category not found");
+            return new CustomException(HttpStatus.NOT_FOUND, "Category not found. id= " + id);
         });
         category.setName(categoryDTO.name());
         categoryRepository.save(category);
@@ -62,12 +58,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void delete(UUID id) {
-        Category category = categoryRepository.findById(id).orElseThrow(() -> {
-            log.warn("Category with id {} not found", id);
-            return new CustomException(HttpStatus.NOT_FOUND, "Category not found");
-        });
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() ->  new CustomException(HttpStatus.NOT_FOUND, "Category not found. id= " + id));
+
         if (productRepository.existsByCategory(category)) {
-            log.warn("Category not empty");
             throw new CustomException(HttpStatus.CONFLICT, "Category not empty");
         }
         categoryRepository.delete(category);

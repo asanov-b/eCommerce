@@ -32,7 +32,7 @@ public class JwtTokenService {
     private String jwtSecret;
 
     public String generateToken(User user) {
-        return Jwts.builder()
+        String compact = Jwts.builder()
                 .subject(user.getUsername())
                 .claim("id", user.getId().toString())
                 .claim("roles", user.getRoles().stream().map(role -> role.getRole().name()).collect(Collectors.joining(",")))
@@ -40,6 +40,8 @@ public class JwtTokenService {
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 100))
                 .signWith(getSecretKey())
                 .compact();
+        log.info("Generated token for userId={}", user.getId());
+        return compact;
     }
 
     public SecretKey getSecretKey() {

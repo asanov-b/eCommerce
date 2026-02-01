@@ -1,6 +1,7 @@
 package com.ecommerce.ecommerce.modules.order.service;
 
 import com.ecommerce.ecommerce.common.exception.CustomException;
+import com.ecommerce.ecommerce.modules.inventory.service.InventoryService;
 import com.ecommerce.ecommerce.modules.order.dto.request.CreateOrderItemsDTO;
 import com.ecommerce.ecommerce.modules.order.dto.request.UpdateOrderStatusDTO;
 import com.ecommerce.ecommerce.modules.order.dto.response.OrderResDTO;
@@ -9,6 +10,10 @@ import com.ecommerce.ecommerce.modules.order.entity.OrderItem;
 import com.ecommerce.ecommerce.modules.order.entity.enums.OrderStatus;
 import com.ecommerce.ecommerce.modules.order.mapper.OrderMapper;
 import com.ecommerce.ecommerce.modules.order.repository.OrderRepository;
+import com.ecommerce.ecommerce.modules.product.entity.Product;
+import com.ecommerce.ecommerce.modules.product.repository.ProductRepository;
+import com.ecommerce.ecommerce.modules.user.entity.Role;
+import com.ecommerce.ecommerce.modules.user.entity.RoleName;
 import com.ecommerce.ecommerce.modules.user.entity.User;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +23,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,9 +36,10 @@ import java.util.UUID;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-    private final OrderItemsService orderItemsService;
     private final EntityManager entityManager;
     private final OrderMapper orderMapper;
+    private final ProductRepository productRepository;
+    private final InventoryService inventoryService;
 
     @Override
     @Transactional
@@ -42,33 +47,40 @@ public class OrderServiceImpl implements OrderService {
 
         User userRef = entityManager.getReference(User.class, id);
 
-        for (int i = 0; i < 3; i++) {
-            try {
-                List<OrderItem> orderItems =
-                        orderItemsService.updateLeftoverReturnOrderItems(orderItemsDTO); // optimistic locking exception here
+        Order order = new Order();
+        order.setUser(userRef);
 
-                Order order = new Order();
-                order.setUser(userRef);
-                BigDecimal totalPrice = BigDecimal.ZERO;
-                for (OrderItem item : orderItems) {
-                    order.addItem(item);
-                    totalPrice = totalPrice.add(item.getTotalAmount());
-                }
-                order.setTotalPrice(totalPrice);
-                Order savedOrder = orderRepository.save(order);
+        BigDecimal orderTotalPrice = BigDecimal.ZERO;
 
-                log.info("Order created successfully userId={} orderId={} totalPrice={}",
-                        userRef.getId(),
-                        savedOrder.getId(),
-                        totalPrice);
-                return orderMapper.toOrderResDTO(savedOrder);
-            } catch (ObjectOptimisticLockingFailureException e) {
-                log.warn("Optimistic locking failure on attempt {}/3 userId={}",
-                        i + 1, userRef.getId());
+        for (CreateOrderItemsDTO item : orderItemsDTO) {
+            Product product = productRepository.findById(item.productId())
+                    .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Product not found productId=" + item.productId()));
+
+            int update = productRepository.subtractLeftover(product.getId(), item.quantity());
+            if (update == 0) {
+                log.warn("Not enough leftover productId={} requestedQty={}", product.getId(), item.quantity());
+                throw new CustomException(HttpStatus.CONFLICT, "Not enough leftover");
             }
+
+            BigDecimal itemTotalPrice = product.getPrice().multiply(BigDecimal.valueOf(item.quantity()));
+            OrderItem orderItem = OrderItem.builder()
+                    .product(product)
+                    .productNameSnapshot(product.getName())
+                    .unitPriceSnapshot(product.getPrice())
+                    .quantity(item.quantity())
+                    .totalAmount(itemTotalPrice)
+                    .build();
+            orderTotalPrice = orderTotalPrice.add(orderItem.getTotalAmount());
+            order.addItem(orderItem);
         }
-        log.error("Order create failed after 3 retries userId={} itemsCount={}", userRef.getId(), orderItemsDTO.size());
-        throw new CustomException(HttpStatus.TOO_MANY_REQUESTS, "Too many requests");
+        order.setTotalPrice(orderTotalPrice);
+        Order savedOrder = orderRepository.save(order);
+
+        log.info("Order created successfully userId={} orderId={} orderTotalPrice={}",
+                id,
+                savedOrder.getId(),
+                orderTotalPrice);
+        return orderMapper.toOrderResDTO(savedOrder);
     }
 
     @Transactional(readOnly = true)
@@ -86,12 +98,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional(readOnly = true)
     @Override
-    public OrderResDTO getOrder(UUID orderId, UUID id) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> {
-            log.warn("Order not found. id {}", orderId);
-            return new CustomException(HttpStatus.NOT_FOUND, "Order not found");
-        });
-        if (!order.getUser().getId().equals(id)) {
+    public OrderResDTO getOrder(UUID orderId, UUID id, List<Role> roles) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Order not found. orderId=" + orderId));
+
+        if (roles.stream().noneMatch(role -> role.getRole().equals(RoleName.ADMIN)) && !order.getUser().getId().equals(id)) {
             log.warn("Order id not match user id {}", id);
             throw new CustomException(HttpStatus.FORBIDDEN, "User not allowed to order");
         }
@@ -106,7 +116,7 @@ public class OrderServiceImpl implements OrderService {
 
         if (status != null) {
             spec = spec.and((root, query, cb) ->
-                    cb.equal(root.get("status"), status));
+                    cb.equal(root.get("orderStatus"), status));
         }
         if (userId != null) {
             spec = spec.and((root, query, cb) ->
@@ -119,17 +129,27 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public OrderResDTO updateOrderStatus(UUID orderId, UpdateOrderStatusDTO statusDTO) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> {
-            log.warn("Order not found. id {}", orderId);
-            return new CustomException(HttpStatus.NOT_FOUND, "Order not found");
-        });
-        if (order.getOrderStatus().equals(OrderStatus.CANCELED) || order.getOrderStatus().equals(OrderStatus.DELIVERED)) {
-            log.warn("Order status not updated. orderId={}", orderId);
-            throw new CustomException(HttpStatus.CONFLICT, "Order status not updated");
+        Order order = orderRepository.findById(orderId).orElseThrow(() ->
+                new CustomException(HttpStatus.NOT_FOUND, "Order not found. orderId= " + orderId));
+
+        OrderStatus newStatus = statusDTO.status();
+        OrderStatus oldStatus = order.getOrderStatus();
+
+        if (oldStatus.equals(OrderStatus.CANCELED) || oldStatus.equals(OrderStatus.DELIVERED)) {
+            throw new CustomException(HttpStatus.CONFLICT, "Order status not updated. orderId= " + orderId);
         }
-        order.setOrderStatus(statusDTO.status());
+
+        if (newStatus.equals(OrderStatus.CANCELED) && (oldStatus.equals(OrderStatus.PROCESSING) || oldStatus.equals(OrderStatus.SHIPPED))) {
+            inventoryService.cancelOrder(order);
+        }
+
+        if (newStatus.equals(OrderStatus.PROCESSING)) {
+            inventoryService.outcomeWithOrder(order);
+        }
+
+        order.setOrderStatus(newStatus);
         orderRepository.save(order);
-        log.info("Order updated successfully. orderId={}", orderId);
+        log.info("Order status updated successfully. status= {}, orderId= {}", newStatus, orderId);
         return orderMapper.toOrderResDTO(order);
     }
 }
