@@ -10,6 +10,8 @@ import java.time.ZoneId;
 @Component
 public class InventoryMapper {
 
+    private final ZoneId zoneId = ZoneId.of("Asia/Tashkent");
+
     public InventoryResDTO toInventoryResDTO(InventoryTransaction inventory) {
         return new InventoryResDTO(
                 inventory.getId(),
@@ -18,7 +20,7 @@ public class InventoryMapper {
                 inventory.getReason(),
                 inventory.getProduct().getLeftover(),
                 inventory.getReference_id(),
-                LocalDateTime.ofInstant(inventory.getCreatedAt(), ZoneId.systemDefault())
+                LocalDateTime.ofInstant(inventory.getCreatedAt(), zoneId)
         );
     }
 }

@@ -40,7 +40,7 @@ public class InventoryServiceImpl implements InventoryService {
     private final InventoryTransactionRepository inventoryTransactionRepository;
     private final InventoryMapper inventoryMapper;
 
-    private ZoneId tz = ZoneId.of("Asia/Tashkent");
+    private final ZoneId tz = ZoneId.of("Asia/Tashkent");
 
     @Override
     @Transactional
@@ -116,17 +116,17 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public void outcomeWithOrder(Order order) {
         List<InventoryTransaction> all = new ArrayList<>();
-        order.getItems().forEach(item -> {
-            all.add(
-                    InventoryTransaction.builder()
-                            .product(item.getProduct())
-                            .type(Type.OUT)
-                            .quantity(item.getQuantity())
-                            .reason(Reason.ORDER)
-                            .reference_id(order.getId())
-                            .build()
-            );
-        });
+        order.getItems().forEach(item ->
+                all.add(
+                        InventoryTransaction.builder()
+                                .product(item.getProduct())
+                                .type(Type.OUT)
+                                .quantity(item.getQuantity())
+                                .reason(Reason.ORDER)
+                                .reference_id(order.getId())
+                                .build()
+                )
+        );
         inventoryTransactionRepository.saveAll(all);
     }
 

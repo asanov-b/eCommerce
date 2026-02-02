@@ -6,11 +6,14 @@ import com.ecommerce.ecommerce.modules.order.entity.Order;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class OrderMapper {
+
+    private final ZoneId zoneId = ZoneId.of("Asia/Tashkent");
 
     public OrderResDTO toOrderResDTO(Order order) {
         List<OrderItemResDTO> orderItemResDTOS = new ArrayList<>();
@@ -29,7 +32,7 @@ public class OrderMapper {
                 order.getId(),
                 order.getOrderStatus(),
                 order.getTotalPrice(),
-                LocalDateTime.now(),
+                LocalDateTime.ofInstant(order.getCreatedAt(), zoneId),
                 orderItemResDTOS
         );
     }

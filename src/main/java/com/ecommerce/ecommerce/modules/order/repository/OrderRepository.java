@@ -1,6 +1,5 @@
 package com.ecommerce.ecommerce.modules.order.repository;
 
-import com.ecommerce.ecommerce.modules.order.dto.response.OrderResDTO;
 import com.ecommerce.ecommerce.modules.order.entity.Order;
 import com.ecommerce.ecommerce.modules.order.entity.enums.OrderStatus;
 import org.springframework.data.domain.Page;
