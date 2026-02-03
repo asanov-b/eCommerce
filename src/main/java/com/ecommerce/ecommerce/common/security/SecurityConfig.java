@@ -35,9 +35,9 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(auth ->
                 auth
-                        .requestMatchers(HttpMethod.GET,"/api/v1/product/**").permitAll()
-                        .requestMatchers("/api/v1/product/search").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/v1/category").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/products/**").permitAll()
+                        .requestMatchers("/api/v1/products/search").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/category/**").permitAll()
                         .requestMatchers("/swagger-ui.html","/swagger-ui/**","/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .anyRequest().authenticated()

@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -37,7 +39,7 @@ public class JwtTokenService {
                 .claim("id", user.getId().toString())
                 .claim("roles", user.getRoles().stream().map(role -> role.getRole().name()).collect(Collectors.joining(",")))
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 100))
+                .expiration(Date.from(Instant.now().plus(Duration.ofMinutes(15))))
                 .signWith(getSecretKey())
                 .compact();
         log.info("Generated token for userId={}", user.getId());

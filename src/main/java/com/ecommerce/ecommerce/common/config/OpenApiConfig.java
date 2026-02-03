@@ -12,8 +12,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(
-        info = @Info(title = "E-Commerce", version = "v1", description = "Demo API"),
-        servers = @Server(url = "http://localhost:8080")
+        info = @Info(title = "E-Commerce", version = "v1", description = "Demo API")
 )
 public class OpenApiConfig {
 
