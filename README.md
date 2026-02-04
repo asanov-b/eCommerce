@@ -22,7 +22,7 @@ This project shows how I design and build a **production-ready backend API**:
 The application is live and running on **AWS EC2**.
 
 **Swagger UI:**  
-http://3.94.162.63:8080/swagger-ui/index.html
+http://98.93.69.49:8080/swagger-ui/index.html
 
 **Demo users:**
 - Admin → `admin@gmail.com` / `admin1234`
@@ -167,8 +167,8 @@ src/main/java/com/ecommerce/ecommerce
 Swagger/OpenAPI is enabled.
 
 - **Local:** http://localhost:8080/swagger-ui/index.html
-- **AWS:** http://3.94.162.63:8080/swagger-ui/index.html
-- **OpenAPI JSON:** http://3.94.162.63:8080/v3/api-docs
+- **AWS:** http://98.93.69.49:8080/swagger-ui/index.html
+- **OpenAPI JSON:** http://98.93.69.49:8080/v3/api-docs
 
 Swagger allows:
 - Inspecting request/response schemas

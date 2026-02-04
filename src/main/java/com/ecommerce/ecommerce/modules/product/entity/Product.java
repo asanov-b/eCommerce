@@ -2,7 +2,10 @@ package com.ecommerce.ecommerce.modules.product.entity;
 
 import com.ecommerce.ecommerce.common.audit.BaseEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -28,5 +31,5 @@ public class Product extends BaseEntity {
     private Category category;
 
     @JoinColumn(nullable = false)
-    private Integer leftover;
+    private Integer leftover = 0;
 }

@@ -11,6 +11,7 @@ public record InventoryResDTO(
         UUID productId,
         Type type,
         Reason reason,
+        Integer lastTransactionCount,
         Integer currentLeftover,
         UUID referenceId,
         LocalDateTime createdAt

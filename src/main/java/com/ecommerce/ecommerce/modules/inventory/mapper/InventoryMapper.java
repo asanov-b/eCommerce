@@ -18,6 +18,7 @@ public class InventoryMapper {
                 inventory.getProduct().getId(),
                 inventory.getType(),
                 inventory.getReason(),
+                inventory.getQuantity(),
                 inventory.getProduct().getLeftover(),
                 inventory.getReference_id(),
                 LocalDateTime.ofInstant(inventory.getCreatedAt(), zoneId)

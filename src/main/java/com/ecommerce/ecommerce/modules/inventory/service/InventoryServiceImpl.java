@@ -12,6 +12,7 @@ import com.ecommerce.ecommerce.modules.inventory.repository.InventoryTransaction
 import com.ecommerce.ecommerce.modules.order.entity.Order;
 import com.ecommerce.ecommerce.modules.product.entity.Product;
 import com.ecommerce.ecommerce.modules.product.repository.ProductRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -39,6 +40,7 @@ public class InventoryServiceImpl implements InventoryService {
     private final ProductRepository productRepository;
     private final InventoryTransactionRepository inventoryTransactionRepository;
     private final InventoryMapper inventoryMapper;
+    private final EntityManager entityManager;
 
     private final ZoneId tz = ZoneId.of("Asia/Tashkent");
 
@@ -52,6 +54,7 @@ public class InventoryServiceImpl implements InventoryService {
                 });
 
         productRepository.addLeftover(dto.productId(), dto.quantity());
+        entityManager.refresh(product);
 
         InventoryTransaction inventory = InventoryTransaction.builder()
                 .product(product)
