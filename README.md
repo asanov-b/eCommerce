@@ -1,10 +1,10 @@
 # 🛒 eCommerce Backend API
 
-
 A production-oriented backend REST API built with Java 17 and Spring Boot 3,
 demonstrating secure JWT authentication with refresh tokens, clean modular architecture,
 PostgreSQL with Flyway migrations, Dockerized deployment,
 and CI/CD using GitHub Actions — all following real-world backend development practices.
+
 ---
 
 ## 🚀 TL;DR — Why this project?
