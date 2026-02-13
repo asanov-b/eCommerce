@@ -1,8 +1,10 @@
 package com.ecommerce.ecommerce.modules.order.service;
 
 import com.ecommerce.ecommerce.common.exception.CustomException;
+import com.ecommerce.ecommerce.modules.cart.entity.Cart;
+import com.ecommerce.ecommerce.modules.cart.entity.CartItem;
+import com.ecommerce.ecommerce.modules.cart.repository.CartRepository;
 import com.ecommerce.ecommerce.modules.inventory.service.InventoryService;
-import com.ecommerce.ecommerce.modules.order.dto.request.CreateOrderItemsDTO;
 import com.ecommerce.ecommerce.modules.order.dto.request.UpdateOrderStatusDTO;
 import com.ecommerce.ecommerce.modules.order.dto.response.OrderResDTO;
 import com.ecommerce.ecommerce.modules.order.entity.Order;
@@ -40,34 +42,41 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final ProductRepository productRepository;
     private final InventoryService inventoryService;
+    private final CartRepository cartRepository;
 
     @Override
     @Transactional
-    public OrderResDTO create(List<CreateOrderItemsDTO> orderItemsDTO, UUID id) {
+    public OrderResDTO create(UUID id) {
 
-        User userRef = entityManager.getReference(User.class, id);
+        Cart cart = cartRepository.getCartByUserId(id)
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Cart not found"));
+        if (cart.getItems().isEmpty()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "Cart is empty");
+        }
 
         Order order = new Order();
-        order.setUser(userRef);
+        order.setUser(entityManager.getReference(User.class, id));
 
         BigDecimal orderTotalPrice = BigDecimal.ZERO;
+        for (CartItem item : cart.getItems()) {
+            Product product = item.getProduct();
+            Integer quantity = item.getQuantity();
+            if (quantity <= 0) {
+                throw new CustomException(HttpStatus.BAD_REQUEST, "Invalid quantity");
+            }
 
-        for (CreateOrderItemsDTO item : orderItemsDTO) {
-            Product product = productRepository.findById(item.productId())
-                    .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Product not found productId=" + item.productId()));
-
-            int update = productRepository.subtractLeftover(product.getId(), item.quantity());
+            int update = productRepository.subtractLeftover(product.getId(), quantity);
             if (update == 0) {
-                log.warn("Not enough leftover productId={} requestedQty={}", product.getId(), item.quantity());
+                log.warn("Not enough leftover productId={} requestedQty={}", product.getId(), quantity);
                 throw new CustomException(HttpStatus.CONFLICT, "Not enough leftover");
             }
 
-            BigDecimal itemTotalPrice = product.getPrice().multiply(BigDecimal.valueOf(item.quantity()));
+            BigDecimal itemTotalPrice = product.getPrice().multiply(BigDecimal.valueOf(quantity));
             OrderItem orderItem = OrderItem.builder()
                     .product(product)
                     .productNameSnapshot(product.getName())
                     .unitPriceSnapshot(product.getPrice())
-                    .quantity(item.quantity())
+                    .quantity(quantity)
                     .totalAmount(itemTotalPrice)
                     .build();
             orderTotalPrice = orderTotalPrice.add(orderItem.getTotalAmount());
@@ -75,11 +84,9 @@ public class OrderServiceImpl implements OrderService {
         }
         order.setTotalPrice(orderTotalPrice);
         Order savedOrder = orderRepository.save(order);
+        cart.getItems().clear();
+        log.info("Order created successfully userId={} orderId={} orderTotalPrice={}", id, savedOrder.getId(), orderTotalPrice);
 
-        log.info("Order created successfully userId={} orderId={} orderTotalPrice={}",
-                id,
-                savedOrder.getId(),
-                orderTotalPrice);
         return orderMapper.toOrderResDTO(savedOrder);
     }
 

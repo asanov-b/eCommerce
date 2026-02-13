@@ -209,15 +209,8 @@ Environment-based configuration is used for:
 ```
 ## 🗺 Roadmap
 
-### 🛒 Shopping Cart (Planned)
-- Implement cart and cart item entities
-- Add / update / remove items in cart
-- User-specific cart ownership
-- Convert cart contents to order
-
 ### 🔐 Authorization Improvements
 - Fine-grained permission model (beyond roles)
-- Ownership checks for user-specific resources (orders, cart)
 - Method-level authorization refinement
 
 ### 🧪 Testing

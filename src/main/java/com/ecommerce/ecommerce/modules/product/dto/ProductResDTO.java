@@ -9,6 +9,7 @@ public record ProductResDTO(
         String name,
         String description,
         BigDecimal price,
+        Integer leftOver,
         List<String> attachmentImgUrls,
         UUID categoryId
 ) {

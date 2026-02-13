@@ -29,8 +29,8 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderResDTO> save(@Valid @RequestBody List<CreateOrderItemsDTO> orderItemsDTO, @AuthenticationPrincipal User principal) {
-        OrderResDTO savedOrder = orderService.create(orderItemsDTO, principal.getId());
+    public ResponseEntity<OrderResDTO> save(@AuthenticationPrincipal User principal) {
+        OrderResDTO savedOrder = orderService.create(principal.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(savedOrder);
     }
 

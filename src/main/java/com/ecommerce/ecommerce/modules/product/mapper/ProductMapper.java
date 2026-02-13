@@ -14,6 +14,7 @@ public class ProductMapper {
                 product.getName(),
                 product.getDescription(),
                 product.getPrice(),
+                product.getLeftover(),
                 product.getAttachments().stream().map(Attachment::getImgUrl).toList(),
                 product.getCategory().getId()
         );

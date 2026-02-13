@@ -1,6 +1,5 @@
 package com.ecommerce.ecommerce.modules.order.service;
 
-import com.ecommerce.ecommerce.modules.order.dto.request.CreateOrderItemsDTO;
 import com.ecommerce.ecommerce.modules.order.dto.request.UpdateOrderStatusDTO;
 import com.ecommerce.ecommerce.modules.order.dto.response.OrderResDTO;
 import com.ecommerce.ecommerce.modules.order.entity.enums.OrderStatus;
@@ -16,7 +15,7 @@ public interface OrderService {
 
     @Transactional
     @PreAuthorize("hasRole('USER')")
-    OrderResDTO create(List<CreateOrderItemsDTO> orderItemsDTO, UUID principal);
+    OrderResDTO create(UUID principal);
 
     @PreAuthorize("hasRole('USER')")
     Page<OrderResDTO> getMyOrders(Integer page, Integer size, OrderStatus orderStatus, UUID id);
