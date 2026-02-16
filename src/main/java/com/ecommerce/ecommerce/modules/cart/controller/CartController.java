@@ -45,12 +45,12 @@ public class CartController {
     @DeleteMapping("/items/{itemId}")
     public ResponseEntity<?> deleteItem(@PathVariable UUID itemId, @AuthenticationPrincipal User userPrincipal) {
         cartService.removeItem(itemId, userPrincipal.getId());
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/clear")
     public ResponseEntity<?> clearCart(@AuthenticationPrincipal User userPrincipal) {
         cartService.clearCart(userPrincipal.getId());
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,7 +1,6 @@
 package com.ecommerce.ecommerce.modules.cart.entity;
 
 import com.ecommerce.ecommerce.common.audit.BaseEntity;
-import com.ecommerce.ecommerce.modules.cart.dto.request.AddCartItemsDTO;
 import com.ecommerce.ecommerce.modules.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
