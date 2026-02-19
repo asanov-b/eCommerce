@@ -15,7 +15,7 @@ import com.ecommerce.ecommerce.modules.order.repository.OrderRepository;
 import com.ecommerce.ecommerce.modules.product.entity.Product;
 import com.ecommerce.ecommerce.modules.product.repository.ProductRepository;
 import com.ecommerce.ecommerce.modules.user.entity.Role;
-import com.ecommerce.ecommerce.modules.user.entity.RoleName;
+import com.ecommerce.ecommerce.modules.user.entity.enums.RoleName;
 import com.ecommerce.ecommerce.modules.user.entity.User;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -106,7 +106,8 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     @Override
     public OrderResDTO getOrder(UUID orderId, UUID id, List<Role> roles) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Order not found. orderId=" + orderId));
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Order not found. orderId=" + orderId));
 
         if (roles.stream().noneMatch(role -> role.getRole().equals(RoleName.ADMIN)) && !order.getUser().getId().equals(id)) {
             log.warn("Order id not match user id {}", id);

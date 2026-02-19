@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
@@ -40,18 +41,21 @@ public class ProductController {
         return ResponseEntity.ok(product);
     }
 
+    @PreAuthorize("hasAuthority('PRODUCT_CREATE')")
     @PostMapping
     public ResponseEntity<ProductResDTO> addProduct(@Validated(OnCreate.class) @RequestBody ProductDTO productDTO){
         ProductResDTO saved = productsService.save(productDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
+    @PreAuthorize("hasAuthority('PRODUCT_UPDATE')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable UUID id, @Valid @RequestBody ProductDTO productDTO){
         ProductResDTO updated = productsService.update(id, productDTO);
         return ResponseEntity.ok(updated);
     }
 
+    @PreAuthorize("hasAuthority('PRODUCT_DELETE')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable UUID id){
         productsService.delete(id);

@@ -5,7 +5,7 @@ import com.ecommerce.ecommerce.modules.auth.dto.LoginDTO;
 import com.ecommerce.ecommerce.modules.auth.dto.RegisterDTO;
 import com.ecommerce.ecommerce.modules.auth.dto.TokenDTO;
 import com.ecommerce.ecommerce.modules.user.entity.Role;
-import com.ecommerce.ecommerce.modules.user.entity.RoleName;
+import com.ecommerce.ecommerce.modules.user.entity.enums.RoleName;
 import com.ecommerce.ecommerce.modules.user.entity.User;
 import com.ecommerce.ecommerce.modules.user.repository.RoleRepository;
 import com.ecommerce.ecommerce.modules.user.repository.UserRepository;

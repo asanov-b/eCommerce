@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,7 @@ public class AdminController {
 
     private final UserService userService;
 
+    @PreAuthorize("hasAuthority('USER_READ')")
     @GetMapping
     public ResponseEntity<Page<UserDTO>> getAllUsers(
             @RequestParam(defaultValue = "0", required = false) Integer page,
@@ -31,18 +33,21 @@ public class AdminController {
         return ResponseEntity.ok(userDTOs);
     }
 
+    @PreAuthorize("hasAuthority('USER_READ')")
     @GetMapping("/{userId}")
     public ResponseEntity<UserDTO> getUser(@PathVariable UUID userId) {
         UserDTO userDTO = userService.getUser(userId);
         return ResponseEntity.ok(userDTO);
     }
 
+    @PreAuthorize("hasAuthority('USER_UPDATE_ROLES')")
     @PutMapping("/{userId}/roles")
     public ResponseEntity<UserDTO> updateUserRoles(@PathVariable UUID userId, @Valid @RequestBody UpdateRolesDTO updateRolesDTO) {
         UserDTO userDTO = userService.changeRoles(userId, updateRolesDTO);
         return ResponseEntity.ok(userDTO);
     }
 
+    @PreAuthorize("hasAuthority('USER_DELETE')")
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> deleteUser(@PathVariable UUID userId, @AuthenticationPrincipal User principal) {
         userService.deleteUser(userId, principal.getId());

@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,18 +23,21 @@ public class UserController {
 
     private final UserService userService;
 
+    @PreAuthorize("hasAuthority('USER_READ_OWN')")
     @GetMapping
     public ResponseEntity<UserDTO> getCurrentUser(@AuthenticationPrincipal User principal) {
         UserDTO userDTO = userService.getUser(principal.getId());
         return ResponseEntity.ok(userDTO);
     }
 
+    @PreAuthorize("hasAuthority('USER_UPDATE_OWN')")
     @PutMapping
     public ResponseEntity<UserDTO> updateProfile(@AuthenticationPrincipal User principal, @Valid @RequestBody UpdateUserDTO updateUserDTO) {
         UserDTO userDTO = userService.updateProfile(principal.getId(), updateUserDTO);
         return ResponseEntity.ok(userDTO);
     }
 
+    @PreAuthorize("hasAuthority('USER_PASSWORD_UPDATE_OWN')")
     @PutMapping("/password")
     public ResponseEntity<?> changePassword(@AuthenticationPrincipal User principal, @Valid @RequestBody ChangePasswordDTO changePasswordDTO) {
         userService.changePassword(principal.getId(), changePasswordDTO);

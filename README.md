@@ -54,6 +54,7 @@ REST API framework (controllers, DI, validation, configuration profiles).
 - Stateless authentication
 - Access & refresh token separation
 - Custom JWT filter and token service
+- Permission-based authorization with `@PreAuthorize("hasAuthority(...)")`
 
 ### 🗄 PostgreSQL + Spring Data JPA
 - Relational database with strong entity relationships
@@ -61,6 +62,8 @@ REST API framework (controllers, DI, validation, configuration profiles).
 
 ### 🛫 Flyway
 Versioned SQL migrations for controlled schema evolution.
+
+Current migrations: `V1` → `V5` (including permissions migration).
 
 ### 🐳 Docker & Docker Compose
 - Multi-stage Dockerfile (build → runtime)
@@ -122,7 +125,7 @@ src/main/java/com/ecommerce/ecommerce
     ├── product     # Products, categories, attachments
     ├── order       # Orders & order items
     ├── inventory   # Inventory transactions
-    └── cart        # Shopping cart (in progress)
+    └── cart        # Shopping cart
 ```
 ### Each module contains:
 - `controller / service / repository / entity / dto / mapper`
@@ -156,8 +159,10 @@ src/main/java/com/ecommerce/ecommerce
 - JWT-based stateless authentication
 - Access & refresh token separation
 - Role-based authorization (ADMIN, USER)
-- Method-level security with `@PreAuthorize`
+- - Permission-based authorization (fine-grained RBAC)
+- Controller-level checks with `hasAuthority(...)`
 - Flyway-managed schema migrations
+- - Role-permission mapping and seed data via `V5__create_permission.sql`
 - JPA Auditing
 
 ---

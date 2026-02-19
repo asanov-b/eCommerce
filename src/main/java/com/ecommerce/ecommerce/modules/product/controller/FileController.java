@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +21,7 @@ public class FileController {
 
     private final FileService fileService;
 
+    @PreAuthorize("hasAuthority('FILE_CREATE')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<List<UUID>> saveFile(@RequestPart("files") @NotEmpty List<MultipartFile> files) {
         List<UUID> saved = fileService.save(files);

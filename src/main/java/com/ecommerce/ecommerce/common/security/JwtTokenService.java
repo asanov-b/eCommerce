@@ -2,9 +2,11 @@ package com.ecommerce.ecommerce.common.security;
 
 
 import com.ecommerce.ecommerce.common.exception.CustomException;
+import com.ecommerce.ecommerce.modules.user.entity.Permission;
 import com.ecommerce.ecommerce.modules.user.entity.Role;
-import com.ecommerce.ecommerce.modules.user.entity.RoleName;
 import com.ecommerce.ecommerce.modules.user.entity.User;
+import com.ecommerce.ecommerce.modules.user.entity.enums.RoleName;
+import com.ecommerce.ecommerce.modules.user.repository.PermissionsRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -32,6 +34,7 @@ public class JwtTokenService {
 
     @Value("${app.jwt.secret}")
     private String jwtSecret;
+    private final PermissionsRepository permissionsRepository;
 
     public String generateToken(User user) {
         String compact = Jwts.builder()
@@ -76,7 +79,12 @@ public class JwtTokenService {
         String id = claims.get("id", String.class);
         String email = claims.getSubject();
         String roles = claims.get("roles", String.class);
-        List<Role> authorities = Arrays.stream(roles.split(",")).map(r -> new Role(RoleName.valueOf(r))).toList();
+        List<Role> authorities = Arrays.stream(roles.split(","))
+                .map(r -> {
+                    RoleName role = RoleName.valueOf(r);
+                    List<Permission> permissions = permissionsRepository.findAllByRole_Role(role);
+                    return new Role(role, permissions);
+                }).toList();
         User user = new User(email, authorities);
         user.setId(UUID.fromString(id));
         return user;

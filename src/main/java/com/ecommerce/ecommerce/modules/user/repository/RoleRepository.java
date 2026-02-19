@@ -1,7 +1,7 @@
 package com.ecommerce.ecommerce.modules.user.repository;
 
 import com.ecommerce.ecommerce.modules.user.entity.Role;
-import com.ecommerce.ecommerce.modules.user.entity.RoleName;
+import com.ecommerce.ecommerce.modules.user.entity.enums.RoleName;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;

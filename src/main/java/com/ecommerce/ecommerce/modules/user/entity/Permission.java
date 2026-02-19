@@ -1,7 +1,7 @@
 package com.ecommerce.ecommerce.modules.user.entity;
 
 import com.ecommerce.ecommerce.common.audit.BaseEntity;
-import com.ecommerce.ecommerce.modules.user.entity.enums.RoleName;
+import com.ecommerce.ecommerce.modules.user.entity.enums.PermissionName;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,25 +10,22 @@ import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "roles")
-public class Role extends BaseEntity implements GrantedAuthority {
+public class Permission extends BaseEntity implements GrantedAuthority {
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private RoleName role;
+    private PermissionName permissionName;
 
-    @OneToMany(mappedBy = "role", fetch = FetchType.EAGER)
-    private List<Permission> permissions;
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Role role;
 
     @Override
     public @Nullable String getAuthority() {
-        return "ROLE_" + role.name();
+        return permissionName.name();
     }
 }

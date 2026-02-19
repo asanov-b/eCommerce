@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,12 +26,14 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    @PreAuthorize("hasAuthority('ORDER_CREATE_OWN')")
     @PostMapping
     public ResponseEntity<OrderResDTO> save(@AuthenticationPrincipal User principal) {
         OrderResDTO savedOrder = orderService.create(principal.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(savedOrder);
     }
 
+    @PreAuthorize("hasAuthority('ORDER_READ_OWN')")
     @GetMapping("/my")
     public ResponseEntity<Page<OrderResDTO>> getMyOrders(
             @RequestParam(defaultValue = "0", required = false) Integer page,
@@ -41,12 +44,14 @@ public class OrderController {
         return ResponseEntity.ok(orderResDTOs);
     }
 
+    @PreAuthorize("hasAnyAuthority('ORDER_READ_OWN', 'ORDER_READ')")
     @GetMapping("/{id}")
     public ResponseEntity<OrderResDTO> getOrder(@PathVariable UUID id, @AuthenticationPrincipal User principal) {
         OrderResDTO orderResDTO = orderService.getOrder(id, principal.getId(), principal.getRoles());
         return ResponseEntity.ok(orderResDTO);
     }
 
+    @PreAuthorize("hasAuthority('ORDER_READ')")
     @GetMapping
     public ResponseEntity<Page<OrderResDTO>> getOrders(
             @RequestParam(defaultValue = "0", required = false) Integer page,
@@ -57,6 +62,7 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+    @PreAuthorize("hasAuthority('ORDER_UPDATE_STATUS')")
     @PatchMapping("/{id}/status")
     public ResponseEntity<OrderResDTO> updateOrderStatus(@PathVariable UUID id, @RequestBody UpdateOrderStatusDTO updateOrderStatusDTO) {
         OrderResDTO orderResDTO = orderService.updateOrderStatus(id, updateOrderStatusDTO);

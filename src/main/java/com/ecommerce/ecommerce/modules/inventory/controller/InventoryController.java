@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -23,18 +24,21 @@ public class InventoryController {
 
     private final InventoryService inventoryService;
 
+    @PreAuthorize("hasAuthority('INVENTORY_CREATE')")
     @PostMapping("/in")
     public ResponseEntity<InventoryResDTO> income(@Valid @RequestBody InventoryInDTO inventoryInDTO){
         InventoryResDTO incomed = inventoryService.income(inventoryInDTO);
         return ResponseEntity.ok(incomed);
     }
 
+    @PreAuthorize("hasAuthority('INVENTORY_READ')")
     @GetMapping("/stock/{productId}")
     public ResponseEntity<LeftoverResDTO> leftover(@PathVariable UUID productId){
         LeftoverResDTO leftover = inventoryService.leftover(productId);
         return ResponseEntity.ok(leftover);
     }
 
+    @PreAuthorize("hasAuthority('INVENTORY_READ')")
     @GetMapping("/history")
     public ResponseEntity<Page<InventoryResDTO>> history(
             @RequestParam(required = false) UUID productId,

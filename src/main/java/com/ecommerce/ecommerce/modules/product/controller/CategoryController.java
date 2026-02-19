@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,18 +35,21 @@ public class CategoryController {
         return ResponseEntity.ok(category);
     }
 
+    @PreAuthorize("hasAuthority('CATEGORY_CREATE')")
     @PostMapping
     public HttpEntity<CategoryResDTO> addCategory(@Valid @RequestBody CategoryDTO categoryDTO){
         CategoryResDTO saved = categoryService.save(categoryDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
+    @PreAuthorize("hasAuthority('CATEGORY_UPDATE')")
     @PutMapping("/{id}")
     public HttpEntity<?> updateCategory(@PathVariable UUID id, @Valid @RequestBody CategoryDTO categoryDTO){
         categoryService.update(id,categoryDTO);
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasAuthority('CATEGORY_DELETE')")
     @DeleteMapping("/{id}")
     public HttpEntity<?> deleteCategory(@PathVariable UUID id){
         categoryService.delete(id);

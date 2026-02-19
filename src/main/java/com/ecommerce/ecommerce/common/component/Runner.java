@@ -1,7 +1,7 @@
 package com.ecommerce.ecommerce.common.component;
 
 import com.ecommerce.ecommerce.modules.user.entity.Role;
-import com.ecommerce.ecommerce.modules.user.entity.RoleName;
+import com.ecommerce.ecommerce.modules.user.entity.enums.RoleName;
 import com.ecommerce.ecommerce.modules.user.entity.User;
 import com.ecommerce.ecommerce.modules.user.repository.RoleRepository;
 import com.ecommerce.ecommerce.modules.user.repository.UserRepository;
